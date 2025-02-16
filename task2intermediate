@@ -1,0 +1,54 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Load dataset
+df = pd.read_csv("store_sales_data.csv")  # Update path
+
+# Display basic info
+print(df.head())
+print(df.info())
+print(df.describe())
+
+# Check for missing values
+print("Missing values:\n", df.isnull().sum())
+
+# Fill missing values if necessary
+df.fillna(0, inplace=True)
+
+# Sales and Profit Analysis
+plt.figure(figsize=(10, 6))
+sns.barplot(x='Category', y='Sales', data=df, estimator=sum, ci=None)
+plt.title("Total Sales by Category")
+plt.xticks(rotation=45)
+plt.show()
+
+plt.figure(figsize=(10, 6))
+sns.barplot(x='Category', y='Profit', data=df, estimator=sum, ci=None)
+plt.title("Total Profit by Category")
+plt.xticks(rotation=45)
+plt.show()
+
+# Monthly sales trend
+df['Order Date'] = pd.to_datetime(df['Order Date'])
+df['Month'] = df['Order Date'].dt.to_period('M')
+monthly_sales = df.groupby('Month')['Sales'].sum()
+plt.figure(figsize=(12, 6))
+monthly_sales.plot(marker='o')
+plt.title("Monthly Sales Trend")
+plt.xlabel("Month")
+plt.ylabel("Sales")
+plt.grid()
+plt.show()
+
+# Top 10 profitable products
+top_products = df.groupby('Product Name')['Profit'].sum().nlargest(10)
+plt.figure(figsize=(12, 6))
+top_products.plot(kind='bar', color='green')
+plt.title("Top 10 Most Profitable Products")
+plt.ylabel("Total Profit")
+plt.show()
+
+# Save processed data
+df.to_csv("processed_store_sales.csv", index=False)
+print("Analysis Completed! Processed data saved.")
